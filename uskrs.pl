@@ -8,7 +8,7 @@ use autodie;
 
 use Date::Calc qw(Easter_Sunday Add_Delta_Days);
 
-my $VERSION='0.3';
+my $VERSION='0.4';
 my $year_start = 2019;
 my $year_end = 2099;
 
@@ -22,7 +22,7 @@ sub time_now()
 # prints one iCal event
 sub one_event
 {
-  my ($e_name, $e_year, $e_mon, $e_day) = @_;
+  my ($e_desc, $e_name, $e_year, $e_mon, $e_day) = @_;
   my $event_date = sprintf ("%04d%02d%02d", $e_year, $e_mon, $e_day);
   my $now = time_now();
 
@@ -32,7 +32,7 @@ CREATED:$now
 LAST-MODIFIED:$now
 DTSTAMP:$now
 UID:$e_name-$e_year
-SUMMARY:$e_name $e_year (neradni)
+SUMMARY:$e_name $e_year ($e_desc)
 DTSTART;VALUE=DATE:$event_date
 DTEND;VALUE=DATE:$event_date
 END:VEVENT
@@ -40,10 +40,12 @@ END:VEVENT
 EOL
 }  
   
-sub one_easter($$$)	{ return one_event ('Uskrs', @_) }
-sub one_eas_mon($$$)	{ return one_event ('Uskršnji pon.', Add_Delta_Days(@_, 1)) }
-sub one_eas_fri($$$)	{ return one_event ('Veliki petak (post)', Add_Delta_Days(@_, -2)) }
-sub one_tjelovo($$$)	{ return one_event ('Tjelovo', Add_Delta_Days(@_, 9*7-3)) }
+sub one_easter($$$)	{ return one_event ('neradni', 'Uskrs', @_) }
+sub one_eas_mon($$$)	{ return one_event ('neradni', 'Uskršnji pon.', Add_Delta_Days(@_, 1)) }
+sub one_eas_fri($$$)	{ return one_event ('post', 'Veliki petak', Add_Delta_Days(@_, -2)) }
+sub one_eas_cv($$$)	{ return one_event ('maslinove grančice', 'Cvjetnica', Add_Delta_Days(@_, -7)) }
+sub one_eas_sr($$$)	{ return one_event ('post', 'Čista srijeda', Add_Delta_Days(@_, -40-6)) }
+sub one_tjelovo($$$)	{ return one_event ('neradni', 'Tjelovo', Add_Delta_Days(@_, 9*7-3)) }
 
 # iCal header
 print <<EOF;
@@ -59,6 +61,8 @@ foreach my $year ($year_start..$year_end) {
     one_easter ($year, $EasterMonth, $EasterDay);	# uskrs (Easter)
     one_eas_mon($year, $EasterMonth, $EasterDay);  	# uskrsnji pon. (monday after Easter)
     one_eas_fri($year, $EasterMonth, $EasterDay);  	# Veliki petak (friday before Easter)
+    one_eas_cv ($year, $EasterMonth, $EasterDay);  	# Cjetnica (sunday before Easter)
+    one_eas_sr ($year, $EasterMonth, $EasterDay);  	# Čista srijeda (40 days before Easter)
     one_tjelovo($year, $EasterMonth, $EasterDay);  	# Tjelovo (Corpus Christi)
 }
 
