@@ -8,8 +8,8 @@ use autodie;
 
 use Date::Calc qw(Easter_Sunday Add_Delta_Days);
 
-my $VERSION='0.2';
-my $year_start = 2015;
+my $VERSION='0.3';
+my $year_start = 2019;
 my $year_end = 2099;
 
 # returns current time in YYYYMMDD T HHMMSS Z format
@@ -42,6 +42,7 @@ EOL
   
 sub one_easter($$$)	{ return one_event ('Uskrs', @_) }
 sub one_eas_mon($$$)	{ return one_event ('Uskršnji pon.', Add_Delta_Days(@_, 1)) }
+sub one_eas_fri($$$)	{ return one_event ('Veliki petak (post)', Add_Delta_Days(@_, -2)) }
 sub one_tjelovo($$$)	{ return one_event ('Tjelovo', Add_Delta_Days(@_, 9*7-3)) }
 
 # iCal header
@@ -57,6 +58,7 @@ foreach my $year ($year_start..$year_end) {
     my ($year, $EasterMonth, $EasterDay) = Easter_Sunday($year);
     one_easter ($year, $EasterMonth, $EasterDay);	# uskrs (Easter)
     one_eas_mon($year, $EasterMonth, $EasterDay);  	# uskrsnji pon. (monday after Easter)
+    one_eas_fri($year, $EasterMonth, $EasterDay);  	# Veliki petak (friday before Easter)
     one_tjelovo($year, $EasterMonth, $EasterDay);  	# Tjelovo (Corpus Christi)
 }
 
